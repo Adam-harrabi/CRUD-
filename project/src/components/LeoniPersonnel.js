@@ -113,10 +113,10 @@ const LeoniPersonnel = ({ personnel, setPersonnel }) => {
                 <td>{person.postal_code}</td>
                 <td>
                   <button className="edit-button" onClick={() => handleEdit(person)}>
-                    <span className="material-icons">edit</span>
+                    Edit
                   </button>
                   <button className="delete-button" onClick={() => handleDeleteClick(person)}>
-                    <span className="material-icons">delete</span>
+                    Delete
                   </button>
                 </td>
               </tr>
@@ -214,7 +214,7 @@ const LeoniPersonnel = ({ personnel, setPersonnel }) => {
         <div className="modal">
           <div className="modal-content delete-confirm">
             <h2>Delete Personnel</h2>
-            <p>Are you sure you want to delete {personToDelete?.worker_name}? This action cannot be undone.</p>
+            <p>Are you sure you want to delete {personToDelete?.worker_name}? </p>
             <div className="modal-buttons">
               <button onClick={handleDeleteConfirm} className="delete-button">Delete</button>
               <button onClick={() => setShowDeleteConfirm(false)} className="cancel-button">Cancel</button>

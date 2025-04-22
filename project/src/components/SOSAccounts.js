@@ -108,13 +108,13 @@ const SOSAccounts = ({ accounts, setAccounts }) => {
       <td>{account.phone_num}</td>
       <td>{account.address}</td>
       <td>
-        <button className="edit-button" onClick={() => handleEdit(account)}>
-          <span className="material-icons">edit</span>
-        </button>
-        <button className="delete-button" onClick={() => handleDeleteClick(account)}>
-          <span className="material-icons">delete</span>
-        </button>
-      </td>
+                  <button className="edit-button" onClick={() => handleEdit(account)}>
+                    Edit
+                  </button>
+                  <button className="delete-button" onClick={() => handleDeleteClick(account)}>
+                    Delete
+                  </button>
+                </td>
     </tr>
   ))}
 </tbody>
@@ -209,7 +209,7 @@ const SOSAccounts = ({ accounts, setAccounts }) => {
         <div className="modal">
           <div className="modal-content delete-confirm">
             <h2>Delete Account</h2>
-            <p>Are you sure you want to delete {accountToDelete?.fname} {accountToDelete?.lname}'s account? This action cannot be undone.</p>
+            <p>Are you sure you want to delete {accountToDelete?.fname} {accountToDelete?.lname}'s </p>
             <div className="modal-buttons">
               <button onClick={handleDeleteConfirm} className="delete-button">Delete</button>
               <button onClick={() => setShowDeleteConfirm(false)} className="cancel-button">Cancel</button>

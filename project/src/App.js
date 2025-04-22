@@ -1,21 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import SupplierList from './components/SupplierList';
 import LeoniPersonnel from './components/LeoniPersonnel';
 import SOSAccounts from './components/SOSAccounts';
 import SchedulePresence from './components/SchedulePresence';
+import SignUpRequests from './components/SignUpRequests/SignUpRequests';
+import SignIn from './components/Auth/SignIn';
+import SignUp from './components/Auth/SignUp';
 import './App.css';
 
 function App() {
-  // Initialize state for all data
   const [suppliers, setSuppliers] = useState([]);
   const [personnel, setPersonnel] = useState([]);
   const [sosAccounts, setSosAccounts] = useState([]);
   const [schedules, setSchedules] = useState([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Load all data from localStorage on initial mount
   useEffect(() => {
+    const auth = localStorage.getItem('isAuthenticated');
+    setIsAuthenticated(auth === 'true');
+
     const savedSuppliers = localStorage.getItem('suppliers');
     const savedPersonnel = localStorage.getItem('personnel');
     const savedSosAccounts = localStorage.getItem('sosAccounts');
@@ -27,7 +32,6 @@ function App() {
     if (savedSchedules) setSchedules(JSON.parse(savedSchedules));
   }, []);
 
-  // Save all data to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('suppliers', JSON.stringify(suppliers));
   }, [suppliers]);
@@ -44,49 +48,64 @@ function App() {
     localStorage.setItem('schedules', JSON.stringify(schedules));
   }, [schedules]);
 
+  const PrivateRoute = ({ children }) => {
+    return isAuthenticated ? (
+      <>
+        <Sidebar />
+        {children}
+      </>
+    ) : (
+      <Navigate to="/signin" />
+    );
+  };
+
   return (
     <Router>
       <div className="app">
-        <Sidebar />
         <Routes>
-          <Route 
-            path="/suppliers" 
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route
+            path="/suppliers"
             element={
-              <SupplierList 
-                suppliers={suppliers} 
-                setSuppliers={setSuppliers} 
-              />
-            } 
+              <PrivateRoute>
+                <SupplierList suppliers={suppliers} setSuppliers={setSuppliers} />
+              </PrivateRoute>
+            }
           />
-          <Route 
-            path="/personnel" 
+          <Route
+            path="/personnel"
             element={
-              <LeoniPersonnel 
-                personnel={personnel} 
-                setPersonnel={setPersonnel} 
-              />
-            } 
+              <PrivateRoute>
+                <LeoniPersonnel personnel={personnel} setPersonnel={setPersonnel} />
+              </PrivateRoute>
+            }
           />
-          <Route 
-            path="/sos" 
+          <Route
+            path="/sos"
             element={
-              <SOSAccounts 
-                accounts={sosAccounts} 
-                setAccounts={setSosAccounts} 
-              />
-            } 
+              <PrivateRoute>
+                <SOSAccounts accounts={sosAccounts} setAccounts={setSosAccounts} />
+              </PrivateRoute>
+            }
           />
-          <Route 
-            path="/schedule" 
+          <Route
+            path="/schedule"
             element={
-              <SchedulePresence 
-                schedules={schedules} 
-                setSchedules={setSchedules} 
-              />
-            } 
+              <PrivateRoute>
+                <SchedulePresence schedules={schedules} setSchedules={setSchedules} />
+              </PrivateRoute>
+            }
           />
-          <Route path="/" element={<div className="content">Welcome to Admin Dashboard</div>} />
-          }
+          <Route
+            path="/signup-requests"
+            element={
+              <PrivateRoute>
+                <SignUpRequests />
+              </PrivateRoute>
+            }
+          />
+          <Route path="/" element={<Navigate to="/signin" />} />
         </Routes>
       </div>
     </Router>

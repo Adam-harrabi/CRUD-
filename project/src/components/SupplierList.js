@@ -4,6 +4,7 @@ import './SupplierList.css';
 const SupplierList = ({ suppliers, setSuppliers }) => {
   const [formData, setFormData] = useState({
     name: '',
+    email: '',
     contact: '',
     companyInfo: '',
     cin: ''
@@ -77,9 +78,10 @@ const SupplierList = ({ suppliers, setSuppliers }) => {
           <thead>
             <tr>
               <th>SUPPLIER</th>
+              <th>CIN</th>
+              <th>EMAIL</th>
               <th>CONTACT</th>
               <th>COMPANY</th>
-              <th>CIN</th>
               <th>ACTIONS</th>
             </tr>
           </thead>
@@ -87,9 +89,11 @@ const SupplierList = ({ suppliers, setSuppliers }) => {
             {filteredSuppliers.map(supplier => (
               <tr key={supplier.id}>
                 <td>{supplier.name}</td>
+                <td>{supplier.cin}</td>
+                <td>{supplier.email}</td>
                 <td>{supplier.contact}</td>
                 <td>{supplier.companyInfo}</td>
-                <td>{supplier.cin}</td>
+              
                 <td>
                   <button className="edit-button" onClick={() => handleEdit(supplier)}>
                     Edit
@@ -123,6 +127,13 @@ const SupplierList = ({ suppliers, setSuppliers }) => {
                 onChange={(e) => setFormData({...formData, cin: e.target.value})}
                 required
               />
+               <input
+                type="email"
+                placeholder="Supplier EMAIL"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                required
+              />
               <input
                 type="text"
                 placeholder="Contact"
@@ -141,7 +152,7 @@ const SupplierList = ({ suppliers, setSuppliers }) => {
                 <button type="button" onClick={() => {
                   setShowForm(false);
                   setIsEditing(false);
-                  setFormData({ name: '', contact: '', companyInfo: '', cin: '' });
+                  setFormData({ name: '', contact: '', companyInfo: '', cin: '',email: '' });
                 }}>
                   Cancel
                 </button>
@@ -155,7 +166,7 @@ const SupplierList = ({ suppliers, setSuppliers }) => {
         <div className="modal">
           <div className="modal-content delete-confirm">
             <h2>Delete Supplier</h2>
-            <p>Are you sure you want to delete {supplierToDelete?.name}? This action cannot be undone.</p>
+            <p>Are you sure you want to delete {supplierToDelete?.name}? </p>
             <div className="modal-buttons">
               <button onClick={handleDeleteConfirm} className="delete-button">Delete</button>
               <button onClick={() => setShowDeleteConfirm(false)} className="cancel-button">Cancel</button>

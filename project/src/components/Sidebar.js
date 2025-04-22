@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { FaUsers, FaUserTie, FaUserShield, FaCalendarAlt } from 'react-icons/fa';
+import { FaUsers, FaUserTie, FaUserShield, FaCalendarAlt, FaUserPlus } from 'react-icons/fa';
 import './Sidebar.css';
 
 const Sidebar = () => {
@@ -21,6 +21,9 @@ const Sidebar = () => {
         </NavLink>
         <NavLink to="/schedule" className="nav-link">
           <FaCalendarAlt /> Schedule Presence
+        </NavLink>
+        <NavLink to="/signup-requests" className="nav-link">
+          <FaUserPlus /> Sign-Up Requests
         </NavLink>
       </nav>
     </div>
