@@ -1,0 +1,104 @@
+.profile-container {
+  width: 90%; /* Set width to occupy 90% of the viewport */
+  max-width: 1000px; /* Allow the box to expand up to 1200px */
+  margin: 50px auto; /* Center the box horizontally */
+  margin-bottom: auto;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  background-color: #ffffff; /* White background for the box */
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  border: 1px solid #ddd; /* Added border for definition */
+}
+
+.profile-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 50px; /* Larger font size */
+  color: #333;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Increased spacing between fields */
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: bold;
+  margin-bottom: 8px;
+  font-size: 16px; /* Slightly larger labels */
+  color: #555;
+}
+
+.form-group input {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px; /* Increased font size */
+  background-color: #fff;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.profile-button {
+  padding: 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 18px; /* Larger button text */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.profile-button:hover {
+  background-color: #0056b3;
+}
+
+.profile-info {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f9f9f9; /* Light gray background for the info box */
+  border-radius: 10px; /* Rounded corners */  
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}     
+
+.profile-info p {   
+  margin: 15px 0; /* Added spacing for better readability */
+  font-size: 50px !important; /* Increased font size to match the box size */
+  color: #444;
+  width: 100%; /* Align with the box size */
+}
+
+.profile-info p strong {
+  color: #222;
+  font-size: 70px !important; /* Larger font size for labels */
+}
+
+.edit-profile-button {
+  display: block;
+  margin: 20px auto 0; /* Centered the button */
+  padding: 12px 24px;
+  background-color: #007bff; /* Blue background for the button */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 18px; /* Larger button text */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.edit-profile-button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}

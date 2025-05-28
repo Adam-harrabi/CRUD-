@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import './SharedStyles.css';
+import '../components/SharedStyles.css';
 
-const LeoniPersonnel = ({ personnel, setPersonnel }) => {
+const SOSLeoniPersonnel = ({ personnel, setPersonnel }) => {
   const [formData, setFormData] = useState({
     cin: '',
     worker_name: '',
@@ -11,17 +11,12 @@ const LeoniPersonnel = ({ personnel, setPersonnel }) => {
     state: '',
     postal_code: '',
     matricule: '',
-    phone_num: '',
     vehiclePlate: ''
   });
-  const [isEditing, setIsEditing] = useState(false);
-  const [editId, setEditId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [personToDelete, setPersonToDelete] = useState(null);
-  const [workerNameError, setWorkerNameError] = useState(false);
-  const [cinError, setCinError] = useState(false);
+   const [workerNameError, setWorkerNameError] = useState(false);
+    const [cinError, setCinError] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -39,30 +34,10 @@ const LeoniPersonnel = ({ personnel, setPersonnel }) => {
       state: '',
       postal_code: '',
       matricule: '',
-      phone_num: '',
       vehiclePlate: ''
     });
     setShowForm(false);
     alert('Personnel added successfully!');
-  };
-
-
-  const handleEdit = (person) => {
-    setIsEditing(true);
-    setEditId(person.id);
-    setFormData(person);
-    setShowForm(true);
-  };
-
-  const handleDeleteClick = (person) => {
-    setPersonToDelete(person);
-    setShowDeleteConfirm(true);
-  };
-
-  const handleDeleteConfirm = () => {
-    setPersonnel(personnel.filter(person => person.id !== personToDelete.id));
-    setShowDeleteConfirm(false);
-    setPersonToDelete(null);
   };
 
   const filteredPersonnel = personnel.filter(person => 
@@ -74,7 +49,7 @@ const LeoniPersonnel = ({ personnel, setPersonnel }) => {
     <div className="container">
       <div className="header">
         <h1>Leoni Personnel Management</h1>
-        <button className="add-button" style={{ marginRight: '70px' }} onClick={() => setShowForm(true)}>
+        <button className="add-button" onClick={() => setShowForm(true)}>
           + Add Personnel
         </button>
       </div>
@@ -102,7 +77,6 @@ const LeoniPersonnel = ({ personnel, setPersonnel }) => {
               <th>ADDRESS</th>
               <th>POSTAL CODE</th>
               <th>VEHICLE PLATE</th>
-              <th>ACTIONS</th>
             </tr>
           </thead>
           <tbody>
@@ -117,14 +91,6 @@ const LeoniPersonnel = ({ personnel, setPersonnel }) => {
                 <td>{person.worker_address}</td>
                 <td>{person.postal_code}</td>
                 <td>{person.vehiclePlate}</td>
-                <td>
-                  <button className="edit-button" onClick={() => handleEdit(person)}>
-                    Edit
-                  </button>
-                  <button className="delete-button" onClick={() => handleDeleteClick(person)}>
-                    Delete
-                  </button>
-                </td>
               </tr>
             ))}
           </tbody>
@@ -134,13 +100,13 @@ const LeoniPersonnel = ({ personnel, setPersonnel }) => {
       {showForm && (
         <div className="modal">
           <div className="modal-content">
-            <h2>{isEditing ? 'Edit Personnel' : 'Add Personnel'}</h2>
+            <h2>Add Personnel</h2>
             <form onSubmit={handleSubmit}>
               <input
                 type="text"
                 placeholder="Worker Name"
                 value={formData.worker_name}
-                onChange={(e) => {
+                    onChange={(e) => {
                   const value = e.target.value;
                   setFormData({ ...formData, worker_name: value });
                   setWorkerNameError(value !== '' && !/^[A-Za-z]+$/.test(value));
@@ -152,7 +118,7 @@ const LeoniPersonnel = ({ personnel, setPersonnel }) => {
                 type="text"
                 placeholder="CIN"
                 value={formData.cin}
-                onChange={(e) => {
+                 onChange={(e) => {
                   const value = e.target.value;
                   setFormData({ ...formData, cin: value });
                   setCinError(value !== '' && (!/^[0-9]{8}$/.test(value)));
@@ -203,19 +169,6 @@ const LeoniPersonnel = ({ personnel, setPersonnel }) => {
                 required
               />
               <input
-                type="tel"
-                placeholder="Phone Number"
-                value={formData.phone_num}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (/^\d{0,8}$/.test(value)) {
-                    setFormData({ ...formData, phone_num: value });
-                  }
-                }}
-                minLength="8"
-                required
-              />
-              <input
                 type="text"
                 placeholder="Vehicle Plate"
                 value={formData.vehiclePlate || ''}
@@ -223,10 +176,9 @@ const LeoniPersonnel = ({ personnel, setPersonnel }) => {
                 required
               />
               <div className="modal-buttons">
-                <button type="submit">{isEditing ? 'Update' : 'Add'}</button>
+                <button type="submit">Add</button>
                 <button type="button" onClick={() => {
                   setShowForm(false);
-                  setIsEditing(false);
                   setFormData({
                     cin: '',
                     worker_name: '',
@@ -236,7 +188,6 @@ const LeoniPersonnel = ({ personnel, setPersonnel }) => {
                     state: '',
                     postal_code: '',
                     matricule: '',
-                    phone_num: '',
                     vehiclePlate: ''
                   });
                 }}>
@@ -247,21 +198,8 @@ const LeoniPersonnel = ({ personnel, setPersonnel }) => {
           </div>
         </div>
       )}
-
-      {showDeleteConfirm && (
-        <div className="modal">
-          <div className="modal-content delete-confirm">
-            <h2>Delete Personnel</h2>
-            <p>Are you sure you want to delete {personToDelete?.worker_name}? </p>
-            <div className="modal-buttons">
-              <button onClick={handleDeleteConfirm} className="delete-button">Delete</button>
-              <button onClick={() => setShowDeleteConfirm(false)} className="cancel-button">Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
-export default LeoniPersonnel;
+export default SOSLeoniPersonnel;

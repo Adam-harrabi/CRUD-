@@ -106,6 +106,39 @@ tr:hover {
   background-color: #c82333;
 }
 
+
+.approve-button, .reject-button {
+  padding: 8px 16px;
+  margin: 0 5px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.approve-button {
+
+  background-color: #28a745;
+  color: white;
+}
+
+.approve-button:hover {
+  background-color: #218838;
+}
+
+.reject-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.reject-button:hover {
+  background-color: #c82333;
+}
+
+
+
 .modal {
   position: fixed;
   top: 0;
@@ -202,4 +235,78 @@ tr:hover {
 .checkbox-field input[type="checkbox"] {
   width: auto;
   margin: 0;
+}
+
+select {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  box-sizing: border-box;
+}
+
+.incident-form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f9f9f9;
+  padding: 20px; /* Add padding to prevent clipping */
+  box-sizing: border-box; /* Ensure padding is included in width/height */
+  margin-left: 320px; /* Offset for sidebar width */
+  width: calc(100% - 320px); /* Adjust width to exclude sidebar */
+}
+
+.incident-form {
+  margin-top: 30px; /* Increased top margin for alignment with interface extremity */
+  margin-bottom: 50px; /* Add more bottom margin */
+  width: 100%; /* Make the form take full width */
+  max-width: 800px; /* Increase maximum width to match the picture */
+  padding: 50px; /* Increase padding for a larger form */
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.incident-form select,
+.incident-form textarea,
+.incident-form input {
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.incident-form .add-button {
+  margin: 30px auto 0; /* Center the button horizontally */
+  display: block;
+  width: 20%;
+  padding: 10px;
+  font-size: 18px;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.incident-form .add-button:hover {
+  background-color: #0056b3;
+}
+
+.success-message {
+  margin-bottom: 20px;
+  padding: 10px;
+  color: #155724;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 4px;
+  text-align: center;
 }

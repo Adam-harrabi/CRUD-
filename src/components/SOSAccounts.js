@@ -19,9 +19,16 @@ const SOSAccounts = ({ accounts, setAccounts }) => {
   const [showForm, setShowForm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState(null);
+  const [fnameError, setFnameError] = useState(false);
+  const [lnameError, setLnameError] = useState(false);
+  const [phoneError, setPhoneError] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (fnameError || lnameError || phoneError) {
+      alert('Please fix the errors before submitting.');
+      return;
+    }
     if (isEditing) {
       setAccounts(accounts.map(account => 
         account.id === editId ? { ...formData, id: editId } : account
@@ -30,6 +37,7 @@ const SOSAccounts = ({ accounts, setAccounts }) => {
       setEditId(null);
     } else {
       setAccounts([...accounts, { ...formData, id: Date.now() }]);
+      alert('Account added successfully!');
     }
     setFormData({
       fname: '',
@@ -68,11 +76,13 @@ const SOSAccounts = ({ accounts, setAccounts }) => {
     account.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleNameValidation = (name) => /^[A-Za-z]+$/.test(name);
+
   return (
     <div className="container">
       <div className="header">
         <h1>SOS Accounts Management</h1>
-        <button className="add-button" onClick={() => setShowForm(true)}>
+        <button className="add-button" style={{ marginRight: '165px' }} onClick={() => setShowForm(true)}>
           + Add Account
         </button>
       </div>
@@ -94,7 +104,7 @@ const SOSAccounts = ({ accounts, setAccounts }) => {
               <th>NAME</th>
               <th>EMAIL</th>
               <th>BIRTHDATE</th>
-              <th>PHONE</th>
+              <th>PHONE NUMBER</th>
               <th>ADDRESS</th>
               <th>ACTIONS</th>
             </tr>
@@ -108,13 +118,13 @@ const SOSAccounts = ({ accounts, setAccounts }) => {
       <td>{account.phone_num}</td>
       <td>{account.address}</td>
       <td>
-        <button className="edit-button" onClick={() => handleEdit(account)}>
-          <span className="material-icons">edit</span>
-        </button>
-        <button className="delete-button" onClick={() => handleDeleteClick(account)}>
-          <span className="material-icons">delete</span>
-        </button>
-      </td>
+                  <button className="edit-button" onClick={() => handleEdit(account)}>
+                    Edit
+                  </button>
+                  <button className="delete-button" onClick={() => handleDeleteClick(account)}>
+                    Delete
+                  </button>
+                </td>
     </tr>
   ))}
 </tbody>
@@ -131,16 +141,26 @@ const SOSAccounts = ({ accounts, setAccounts }) => {
                 type="text"
                 placeholder="First Name"
                 value={formData.fname}
-                onChange={(e) => setFormData({...formData, fname: e.target.value})}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData({ ...formData, fname: value });
+                  setFnameError(value !== '' && !handleNameValidation(value));
+                }}
                 required
               />
+              {fnameError && <p style={{ color: 'red' }}>Name must contain only letters</p>}
               <input
                 type="text"
                 placeholder="Last Name"
                 value={formData.lname}
-                onChange={(e) => setFormData({...formData, lname: e.target.value})}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData({ ...formData, lname: value });
+                  setLnameError(value !== '' && !handleNameValidation(value));
+                }}
                 required
               />
+              {lnameError && <p style={{ color: 'red' }}>Name must contain only letters</p>}
               <input
                 type="date"
                 placeholder="Birth Date"
@@ -157,12 +177,17 @@ const SOSAccounts = ({ accounts, setAccounts }) => {
                 required
               />
               <input
-                type="tel"
+                type="text"
                 placeholder="Phone Number"
                 value={formData.phone_num}
-                onChange={(e) => setFormData({...formData, phone_num: e.target.value})}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData({ ...formData, phone_num: value });
+                  setPhoneError(value !== '' && (!/^[0-9]{8}$/.test(value)));
+                }}
                 required
               />
+              {phoneError && <p style={{ color: 'red' }}>Phone number must contain exactly 8 numbers</p>}
               <input
                 type="email"
                 placeholder="Email"
@@ -209,7 +234,7 @@ const SOSAccounts = ({ accounts, setAccounts }) => {
         <div className="modal">
           <div className="modal-content delete-confirm">
             <h2>Delete Account</h2>
-            <p>Are you sure you want to delete {accountToDelete?.fname} {accountToDelete?.lname}'s account? This action cannot be undone.</p>
+            <p>Are you sure you want to delete {accountToDelete?.fname} {accountToDelete?.lname}'s </p>
             <div className="modal-buttons">
               <button onClick={handleDeleteConfirm} className="delete-button">Delete</button>
               <button onClick={() => setShowDeleteConfirm(false)} className="cancel-button">Cancel</button>

@@ -1,0 +1,47 @@
+.consult-reports {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  margin-left: 250px; /* Adjusting to move content to the right */
+  max-width: 800px; /* Limiting the width to match Sign-Up Requests */
+}
+
+.consult-reports h1 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+}
+
+.search-input {
+  margin-bottom: 20px;
+  padding: 10px;
+  width: 100%;
+  max-width: 300px; /* Reducing the width to match Sign-Up Requests */
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.reports-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  max-width: 800px; /* Limiting the table width */
+}
+
+.reports-table th, .reports-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.reports-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.reports-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.reports-table tr:hover {
+  background-color: #f1f1f1;
+}

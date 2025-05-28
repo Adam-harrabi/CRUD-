@@ -1,0 +1,149 @@
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #002B5C, #0066b2);
+    padding: 20px;
+  }
+  
+  .auth-box {
+    display: flex;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    width: 900px;
+    max-width: 95%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .auth-left {
+    flex: 1;
+    background: #002B5C;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+  }
+  
+  .auth-left h2 {
+    font-size: 24px;
+    margin-top: 20px;
+  }
+  
+  .auth-left img {
+    max-width: 180px;
+    height: auto;
+  }
+  
+  .auth-right {
+    flex: 2;
+    padding: 40px;
+    background: white;
+  }
+  
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .form-group label {
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .form-group input {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+  .form-group input:focus {
+    border-color: #002B5C;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 43, 92, 0.1);
+  }
+  
+  .auth-button {
+    background: #002B5C;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .auth-button:hover {
+    background: #001F42;
+  }
+  
+  .auth-button.secondary {
+    background: #6c757d;
+  }
+  
+  .auth-button.secondary:hover {
+    background: #5a6268;
+  }
+  
+  .auth-links {
+    margin-top: 20px;
+    text-align: center;
+  }
+  
+  .auth-links a {
+    color: #002B5C;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .auth-links a:hover {
+    text-decoration: underline;
+  }
+  
+  .error-message {
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: 4px;
+  }
+  
+  .buttons-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .success-message {
+    text-align: center;
+    color: #28a745;
+    padding: 20px;
+    border: 1px solid #28a745;
+    border-radius: 4px;
+    margin-bottom: 20px;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .auth-box {
+      flex-direction: column;
+    }
+  
+    .auth-left,
+    .auth-right {
+      flex: none;
+      padding: 20px;
+    }
+  }
+  

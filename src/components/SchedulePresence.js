@@ -3,7 +3,7 @@ import './SharedStyles.css';
 
 const SchedulePresence = ({ schedules, setSchedules }) => {
   const [formData, setFormData] = useState({
-    supplier_cin: '',
+   
     supplier_name: '',
     sch_date: '',
     duration: '',
@@ -27,10 +27,12 @@ const SchedulePresence = ({ schedules, setSchedules }) => {
       setEditId(null);
     } else {
       setSchedules([...schedules, { ...formData, id: Date.now() }]);
+      alert('Schedule presence added successfully!');
     }
     setFormData({
-      supplier_cin: '',
+    
       supplier_name: '',
+     
       sch_date: '',
       duration: '',
       reason: ''
@@ -56,6 +58,19 @@ const SchedulePresence = ({ schedules, setSchedules }) => {
     setScheduleToDelete(null);
   };
 
+  const handleDateChange = (e) => {
+    const selectedDate = new Date(e.target.value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set time to midnight for accurate comparison
+  
+    if (selectedDate < today) {
+      alert('You cannot select a past date.');
+      setFormData({ ...formData, sch_date: '' }); // Reset the date field
+    } else {
+      setFormData({ ...formData, sch_date: e.target.value });
+    }
+  };
+
   const filteredSchedules = schedules.filter(schedule =>
     schedule.supplier_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     schedule.supplier_cin.toLowerCase().includes(searchTerm.toLowerCase())
@@ -65,8 +80,8 @@ const SchedulePresence = ({ schedules, setSchedules }) => {
     <div className="container">
       <div className="header">
         <h1>Schedule Presence Management</h1>
-        <button className="add-button" onClick={() => setShowForm(true)}>
-          + Add Schedule
+        <button className="add-button" style={{ marginRight: '150px' }} onClick={() => setShowForm(true)}>
+          + Schedule Presence
         </button>
       </div>
 
@@ -85,7 +100,8 @@ const SchedulePresence = ({ schedules, setSchedules }) => {
           <thead>
             <tr>
               <th>SUPPLIER NAME</th>
-              <th>SUPPLIER CIN</th>
+             
+              
               <th>DATE</th>
               <th>DURATION</th>
               <th>REASON</th>
@@ -96,16 +112,16 @@ const SchedulePresence = ({ schedules, setSchedules }) => {
             {filteredSchedules.map(schedule => (
               <tr key={schedule.id}>
                 <td>{schedule.supplier_name}</td>
-                <td>{schedule.supplier_cin}</td>
+               
                 <td>{schedule.sch_date}</td>
                 <td>{schedule.duration}</td>
                 <td>{schedule.reason}</td>
                 <td>
                   <button className="edit-button" onClick={() => handleEdit(schedule)}>
-                    <span className="material-icons">edit</span>
+                    Edit
                   </button>
                   <button className="delete-button" onClick={() => handleDeleteClick(schedule)}>
-                    <span className="material-icons">delete</span>
+                    Delete
                   </button>
                 </td>
               </tr>
@@ -126,18 +142,13 @@ const SchedulePresence = ({ schedules, setSchedules }) => {
                 onChange={(e) => setFormData({ ...formData, supplier_name: e.target.value })}
                 required
               />
-              <input
-                type="text"
-                placeholder="Supplier CIN"
-                value={formData.supplier_cin}
-                onChange={(e) => setFormData({ ...formData, supplier_cin: e.target.value })}
-                required
-              />
+            
+              
               <input
                 type="date"
                 placeholder="Schedule Date"
                 value={formData.sch_date}
-                onChange={(e) => setFormData({ ...formData, sch_date: e.target.value })}
+                onChange={handleDateChange}
                 required
               />
               <input
@@ -151,7 +162,7 @@ const SchedulePresence = ({ schedules, setSchedules }) => {
                 placeholder="Reason"
                 value={formData.reason}
                 onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
-                required
+                
               />
               <div className="modal-buttons">
                 <button type="submit">{isEditing ? 'Update' : 'Add'}</button>
@@ -159,8 +170,9 @@ const SchedulePresence = ({ schedules, setSchedules }) => {
                   setShowForm(false);
                   setIsEditing(false);
                   setFormData({
-                    supplier_cin: '',
+                   
                     supplier_name: '',
+                    
                     sch_date: '',
                     duration: '',
                     reason: ''
@@ -178,7 +190,7 @@ const SchedulePresence = ({ schedules, setSchedules }) => {
         <div className="modal">
           <div className="modal-content delete-confirm">
             <h2>Delete Schedule</h2>
-            <p>Are you sure you want to delete this schedule for {scheduleToDelete?.supplier_name}? This action cannot be undone.</p>
+            <p>Are you sure you want to delete this schedule for {scheduleToDelete?.supplier_name}? </p>
             <div className="modal-buttons">
               <button onClick={handleDeleteConfirm} className="delete-button">Delete</button>
               <button onClick={() => setShowDeleteConfirm(false)} className="cancel-button">Cancel</button>

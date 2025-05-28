@@ -1,0 +1,41 @@
+/* Improved styles for Check In and Check Out buttons */
+.check-in-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.check-in-button:hover {
+  background-color: #218838;
+}
+
+.check-out-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.check-out-button:hover {
+  background-color: #c82333;
+}
+
+/* Styles for status colors */
+.status-entry {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.status-exit {
+  color: #dc3545;
+  font-weight: bold;
+}
