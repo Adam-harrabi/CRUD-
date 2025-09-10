@@ -46,30 +46,47 @@ const SignUp = () => {
     return true;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (firstNameError || lastNameError || phoneError) {
-      alert('Please fix the errors before submitting.');
-      return;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (firstNameError || lastNameError || phoneError) {
+    alert('Please fix the errors before submitting.');
+    return;
+  }
+
+  setError('');
+
+  if (!validateForm()) return;
+
+  try {
+    const response = await fetch("http://localhost:5000/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        cin: formData.cin,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        birthdate: formData.birthdate,
+        phoneNumber: formData.phoneNumber,
+        email: formData.email,
+        password: formData.password
+      })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      setSuccess(true);
+      setTimeout(() => navigate('/signin'), 3000);
+    } else {
+      setError(data.msg || "Something went wrong");
     }
-
-    setError('');
-
-    if (!validateForm()) return;
-
-    const newRequest = {
-      id: Date.now(),
-      ...formData,
-      requestDate: new Date().toISOString(),
-      status: 'pending'
-    };
-
-    const existingRequests = JSON.parse(localStorage.getItem('signupRequests') || '[]');
-    localStorage.setItem('signupRequests', JSON.stringify([...existingRequests, newRequest]));
-
-    setSuccess(true);
-    setTimeout(() => navigate('/signin'), 3000);
-  };
+  } catch (err) {
+    console.error(err);
+    setError("Server error, please try again later");
+  }
+};
 
   const handleReset = () => {
     setFormData({

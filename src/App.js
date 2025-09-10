@@ -65,10 +65,12 @@ function App() {
     
   }, [isAuthenticated, isSOSAuthenticated]);
 
-  const PrivateRoute = ({ children, allowedRole }) => {
+ const PrivateRoute = ({ children, allowedRole }) => {
   const userRole = localStorage.getItem('userRole');
+  const token = localStorage.getItem('token'); // Check for token instead
+  const isAuth = !!token; // Convert to boolean - true if token exists
+  
   const isAllowed = !allowedRole || userRole === allowedRole;
-  const isAuth = localStorage.getItem('isAuthenticated') === 'true';
 
   if (!isAuth) {
     return <Navigate to="/signin" />;
@@ -78,7 +80,6 @@ function App() {
     return <Navigate to={userRole === 'sos' ? '/sos/suppliers' : '/suppliers'} />;
   }
 
-  // Just return the children, Sidebar must be handled inside each component
   return children;
 };
 
