@@ -134,7 +134,7 @@ function App() {
           element={
             <PrivateRoute allowedRole="sos">
               <Sidebar />
-              <SOSLeoniPersonnel personnel={personnel} setPersonnel={setPersonnel} />
+              <LeoniPersonnel personnel={personnel} setPersonnel={setPersonnel} />
             </PrivateRoute>
           }
         />
