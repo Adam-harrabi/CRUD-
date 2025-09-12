@@ -13,7 +13,8 @@ const SignUp = () => {
     phoneNumber: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    role:'sos'
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -70,7 +71,9 @@ const handleSubmit = async (e) => {
         birthdate: formData.birthdate,
         phoneNumber: formData.phoneNumber,
         email: formData.email,
-        password: formData.password
+        password: formData.password,
+        role: formData.role
+
       })
     });
 
