@@ -282,25 +282,7 @@ const isSOS = userRole === 'sos';
         <h1>Leoni Personnel Management</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           {/* Show user role badge */}
-          <span style={{ 
-            background: userRole === 'admin' ? '#28a745' : '#007bff', 
-            color: 'white', 
-            padding: '5px 10px', 
-            borderRadius: '15px', 
-            fontSize: '12px',
-            fontWeight: 'bold',
-            textTransform: 'uppercase'
-          }}>
-            {userRole || 'Unknown'}
-          </span>
-          <button 
-            className="refresh-button" 
-            onClick={handleRefresh}
-            disabled={loading}
-            style={{ background: '#007bff', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px' }}
-          >
-            🔄 Refresh
-          </button>
+     
           <button 
             className="add-button" 
             onClick={() => setShowForm(true)}
