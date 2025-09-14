@@ -155,27 +155,7 @@ const SignUpRequests = () => {
     <div className="container">
       <div className="header">
         <h1>Sign-Up Requests</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span className="request-count">
-            {requests.length} pending request{requests.length !== 1 ? 's' : ''}
-          </span>
-          <button 
-            onClick={fetchPendingRequests} 
-            disabled={loading}
-            className="refresh-button"
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.6 : 1
-            }}
-          >
-            {loading ? 'Loading...' : 'Refresh'}
-          </button>
-        </div>
+       
       </div>
 
       {error && (
