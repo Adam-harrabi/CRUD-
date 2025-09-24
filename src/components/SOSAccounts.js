@@ -254,7 +254,7 @@ const SOSAccounts = () => {
             marginRight: "100px"
           }}
         >
-          Create New Account
+          +Add Account
         </button>
       </div>
 
@@ -424,7 +424,7 @@ const SOSAccounts = () => {
               
               <div className="modal-buttons">
                 <button type="submit" className="save-button">
-                  Create Account
+                  Add
                 </button>
                 <button
                   type="button"

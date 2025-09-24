@@ -10,13 +10,6 @@ const ConsultReports = () => {
   const [typeFilter, setTypeFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
   const [stats, setStats] = useState({});
-  const [selectedReport, setSelectedReport] = useState(null);
-  const [showStatusModal, setShowStatusModal] = useState(false);
-  const [statusUpdateData, setStatusUpdateData] = useState({
-    status: '',
-    adminNotes: '',
-    priority: ''
-  });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [successMessage, setSuccessMessage] = useState('');
@@ -51,8 +44,8 @@ const ConsultReports = () => {
         limit: 10,
         ...(statusFilter && { status: statusFilter }),
         ...(typeFilter && { type: typeFilter }),
-        ...(priorityFilter && { priority: priorityFilter }),
-        ...(searchTerm && { search: searchTerm })
+        ...(priorityFilter && { default_priority: priorityFilter }),
+        ...(searchTerm && { reporter: searchTerm }) // Only search by reporter
       });
 
       const response = await fetch(`${API_BASE_URL}/incidents/admin/all?${queryParams}`, {
@@ -100,12 +93,7 @@ const ConsultReports = () => {
     }
   };
 
-  const handleStatusUpdate = async () => {
-    if (!selectedReport || !statusUpdateData.status) {
-      alert('Please select a status.');
-      return;
-    }
-
+  const handleMarkAsResolved = async (reportId) => {
     try {
       setLoading(true);
       const token = getAuthToken();
@@ -114,63 +102,63 @@ const ConsultReports = () => {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/incidents/admin/${selectedReport._id}/status`, {
+      const response = await fetch(`${API_BASE_URL}/incidents/admin/${reportId}/resolve`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(statusUpdateData),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.msg || 'Failed to update status');
+        throw new Error(data.msg || 'Failed to resolve incident');
       }
 
       // Update the report in the list
       setReports(prevReports =>
         prevReports.map(report =>
-          report._id === selectedReport._id ? data.incident : report
+          report._id === reportId ? data.incident : report
         )
       );
 
-      setSuccessMessage(`Incident ${statusUpdateData.status} successfully!`);
-      setShowStatusModal(false);
-      setSelectedReport(null);
-      setStatusUpdateData({ status: '', adminNotes: '', priority: '' });
+      setSuccessMessage('Incident marked as resolved successfully!');
       setTimeout(() => setSuccessMessage(''), 3000);
 
       // Refresh stats
       fetchStats();
 
     } catch (error) {
-      console.error('Error updating status:', error);
-      alert(error.message || 'Failed to update status. Please try again.');
+      console.error('Error resolving incident:', error);
+      alert(error.message || 'Failed to resolve incident. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const openStatusModal = (report) => {
-    setSelectedReport(report);
-    setStatusUpdateData({
-      status: report.status || '',
-      adminNotes: report.adminNotes || '',
-      priority: report.priority || 'medium'
-    });
-    setShowStatusModal(true);
-  };
-
   const getStatusBadgeClass = (status) => {
     const statusClasses = {
       pending: 'status-pending',
-      approved: 'status-approved',
-      rejected: 'status-rejected',
       resolved: 'status-resolved'
     };
     return `status-badge ${statusClasses[status] || 'status-pending'}`;
+  };
+
+  // Inline style for soft yellow pending badge
+  const getStatusBadgeStyle = (status) => {
+    if (status === 'pending') {
+      return {
+        background: '#FEF9C3', // soft yellow
+        color: '#383735ff', // dark yellow text
+        borderRadius: '6px',
+        padding: '6px 14px',
+        fontWeight: '500',
+        fontSize: '14px',
+        display: 'inline-block'
+      };
+    }
+    return {};
   };
 
   const getPriorityBadgeClass = (priority) => {
@@ -181,6 +169,14 @@ const ConsultReports = () => {
     };
     return `priority-badge ${priorityClasses[priority] || 'priority-medium'}`;
   };
+
+  // Filter reports by reporter name (first and last) on the frontend
+  const filteredReports = reports.filter(report => {
+    if (!searchTerm.trim()) return true;
+    if (!report.reportedBy) return false;
+    const fullName = `${report.reportedBy.firstName} ${report.reportedBy.lastName}`.toLowerCase();
+    return fullName.includes(searchTerm.trim().toLowerCase());
+  });
 
   return (
     <div className="container">
@@ -286,64 +282,6 @@ const ConsultReports = () => {
                 textAlign: 'center',
                 minWidth: '140px',
                 boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
-                border: '2px solid #10b981',
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease'
-              }}>
-                <div style={{
-                  fontSize: '32px',
-                  fontWeight: '800',
-                  color: '#059669',
-                  marginBottom: '8px'
-                }}>
-                  {stats.overall.approved}
-                </div>
-                <div style={{
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: '#047857',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
-                  Approved
-                </div>
-              </div>
-
-              <div className="stat-card" style={{
-                background: 'rgba(255, 255, 255, 0.95)',
-                borderRadius: '12px',
-                padding: '20px',
-                textAlign: 'center',
-                minWidth: '140px',
-                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
-                border: '2px solid #ef4444',
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease'
-              }}>
-                <div style={{
-                  fontSize: '32px',
-                  fontWeight: '800',
-                  color: '#dc2626',
-                  marginBottom: '8px'
-                }}>
-                  {stats.overall.rejected}
-                </div>
-                <div style={{
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: '#991b1b',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
-                  Rejected
-                </div>
-              </div>
-
-              <div className="stat-card" style={{
-                background: 'rgba(255, 255, 255, 0.95)',
-                borderRadius: '12px',
-                padding: '20px',
-                textAlign: 'center',
-                minWidth: '140px',
-                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
                 border: '2px solid #3b82f6',
                 transition: 'transform 0.3s ease, box-shadow 0.3s ease'
               }}>
@@ -423,21 +361,21 @@ const ConsultReports = () => {
           gap: '16px'
         }}>
           <div className="search-bar">
-            <input
-              type="text"
-              placeholder="Search by type, description, or reporter..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                border: '2px solid #e5e7eb',
-                borderRadius: '8px',
-                fontSize: '14px',
-                transition: 'border-color 0.3s ease, box-shadow 0.3s ease'
-              }}
-            />
+              <input
+                type="text"
+                placeholder="Search by reporter name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  transition: 'border-color 0.3s ease, box-shadow 0.3s ease'
+                }}
+              />
           </div>
 
           <select
@@ -456,8 +394,6 @@ const ConsultReports = () => {
           >
             <option value="">All Statuses</option>
             <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
             <option value="resolved">Resolved</option>
           </select>
 
@@ -476,8 +412,14 @@ const ConsultReports = () => {
             }}
           >
             <option value="">All Types</option>
-            <option value="Real Parking">Real Parking</option>
-            <option value="Application">Application</option>
+            <option value="Login bug">Login bug</option>
+            <option value="Report submission error">Report submission error</option>
+            <option value="Gate malfunction">Gate malfunction</option>
+            <option value="Electricity outage">Electricity outage</option>
+            <option value="Fire">Fire</option>
+            <option value="Car accident">Car accident</option>
+            <option value="Unauthorized worker entry">Unauthorized worker entry</option>
+            <option value="Worker's vehicle overstaying">Worker's vehicle overstaying</option>
           </select>
 
           <select
@@ -535,14 +477,14 @@ const ConsultReports = () => {
               </tr>
             </thead>
             <tbody>
-              {!loading && reports.length === 0 ? (
+              {!loading && filteredReports.length === 0 ? (
                 <tr>
                   <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: '#6b7280', fontSize: '16px' }}>
                     No reports found
                   </td>
                 </tr>
               ) : (
-                reports.map((report, index) => (
+                filteredReports.map((report, index) => (
                   <tr key={report._id} style={{ 
                     borderBottom: '1px solid #f3f4f6',
                     background: index % 2 === 0 ? 'white' : '#fafafa'
@@ -562,42 +504,45 @@ const ConsultReports = () => {
                         `${report.reportedBy.firstName} ${report.reportedBy.lastName}` : 
                         'Unknown'
                       }
-                      {report.reportedBy?.cin && (
-                        <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
-                          CIN: {report.reportedBy.cin}
-                        </div>
-                      )}
                     </td>
                     <td style={{ padding: '16px' }}>{new Date(report.date).toLocaleDateString()}</td>
                     <td style={{ padding: '16px' }}>
-                      <span className={getStatusBadgeClass(report.status)}>
+                      <span 
+                        className={getStatusBadgeClass(report.status)}
+                        style={getStatusBadgeStyle(report.status)}
+                      >
                         {report.status || 'pending'}
                       </span>
                     </td>
                     <td style={{ padding: '16px' }}>
-                      <span className={getPriorityBadgeClass(report.priority)}>
-                        {report.priority || 'medium'}
+                      <span className={getPriorityBadgeClass(report.default_priority)}>
+                        {report.default_priority || 'medium'}
                       </span>
                     </td>
                     <td style={{ padding: '16px' }}>
                       <button
-                        onClick={() => openStatusModal(report)}
+                        onClick={() => handleMarkAsResolved(report._id)}
                         className="action-btn"
-                        disabled={loading}
+                        disabled={loading || report.status === 'resolved'}
                         style={{
                           padding: '8px 16px',
-                          background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                          background: report.status === 'resolved' 
+                            ? 'linear-gradient(135deg, #6b7280, #4b5563)' // Gray gradient for resolved
+                            : 'linear-gradient(135deg, #10b981, #059669)', // Green gradient for pending
                           color: 'white',
                           border: 'none',
                           borderRadius: '6px',
-                          cursor: 'pointer',
+                          cursor: report.status === 'resolved' ? 'not-allowed' : 'pointer',
                           fontSize: '14px',
                           fontWeight: '500',
                           transition: 'all 0.3s ease',
-                          boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)'
+                          boxShadow: report.status === 'resolved' 
+                            ? '0 2px 4px rgba(107, 114, 128, 0.3)'
+                            : '0 2px 4px rgba(16, 185, 129, 0.3)',
+                          opacity: report.status === 'resolved' ? 0.6 : 1
                         }}
                       >
-                        Update
+                        Mark as Resolved
                       </button>
                     </td>
                   </tr>
@@ -658,160 +603,6 @@ const ConsultReports = () => {
           </div>
         )}
       </div>
-
-      {/* Status Update Modal */}
-      {showStatusModal && (
-        <div className="modal-overlay" style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.6)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 1000
-        }}>
-          <div className="modal-content" style={{
-            background: 'white',
-            padding: '32px',
-            borderRadius: '16px',
-            minWidth: '500px',
-            maxWidth: '600px',
-            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)'
-          }}>
-            <h3 style={{ 
-              fontSize: '22px', 
-              fontWeight: '700', 
-              color: '#1f2937', 
-              marginBottom: '24px',
-              textAlign: 'center'
-            }}>
-              Update Report Status
-            </h3>
-            
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '8px', 
-                fontWeight: '600',
-                color: '#374151'
-              }}>
-                Status:
-              </label>
-              <select
-                value={statusUpdateData.status}
-                onChange={(e) => setStatusUpdateData(prev => ({ ...prev, status: e.target.value }))}
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  background: 'white'
-                }}
-              >
-                <option value="">Select Status</option>
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-                <option value="resolved">Resolved</option>
-              </select>
-            </div>
-
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '8px', 
-                fontWeight: '600',
-                color: '#374151'
-              }}>
-                Priority:
-              </label>
-              <select
-                value={statusUpdateData.priority}
-                onChange={(e) => setStatusUpdateData(prev => ({ ...prev, priority: e.target.value }))}
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  background: 'white'
-                }}
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-              </select>
-            </div>
-
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '8px', 
-                fontWeight: '600',
-                color: '#374151'
-              }}>
-                Admin Notes:
-              </label>
-              <textarea
-                value={statusUpdateData.adminNotes}
-                onChange={(e) => setStatusUpdateData(prev => ({ ...prev, adminNotes: e.target.value }))}
-                placeholder="Add any notes about this decision..."
-                rows="4"
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  resize: 'vertical',
-                  fontFamily: 'inherit'
-                }}
-              />
-            </div>
-
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-              <button
-                onClick={() => {
-                  setShowStatusModal(false);
-                  setSelectedReport(null);
-                }}
-                disabled={loading}
-                style={{
-                  padding: '12px 24px',
-                  border: '2px solid #e5e7eb',
-                  background: 'white',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                  color: '#6b7280'
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleStatusUpdate}
-                disabled={loading || !statusUpdateData.status}
-                style={{
-                  padding: '12px 24px',
-                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)'
-                }}
-              >
-                {loading ? 'Updating...' : 'Update Status'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

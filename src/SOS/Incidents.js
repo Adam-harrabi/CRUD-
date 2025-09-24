@@ -1,3 +1,18 @@
+  // Inline style for soft yellow pending badge
+  const getStatusBadgeStyle = (status) => {
+    if (status === 'pending') {
+      return {
+        background: '#FEF9C3', // soft yellow
+        color: '#383735ff', // dark yellow text
+        borderRadius: '6px',
+        padding: '6px 14px',
+        fontWeight: '500',
+        fontSize: '14px',
+        display: 'inline-block'
+      };
+    }
+    return {};
+  };
 import React, { useState, useEffect } from 'react';
 import './Incidents.css'; // Import the CSS file
 
@@ -10,17 +25,31 @@ const Incidents = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Get auth token from localStorage or context (adjust based on your auth implementation)
+  // Get auth token from localStorage or context
   const getAuthToken = () => {
-    return localStorage.getItem('token'); // Adjust this based on how you store the auth token
+    return localStorage.getItem('token');
   };
 
   // API base URL - adjust this to match your backend URL
   const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
+  // New incident types with their priorities
+  const incidentTypes = [
+    { value: 'Login bug', label: 'Login bug', priority: 'medium' },
+    { value: 'Report submission error', label: 'Report submission error', priority: 'low' },
+    { value: 'Gate malfunction', label: 'Gate malfunction', priority: 'high' },
+    { value: 'Electricity outage', label: 'Electricity outage', priority: 'high' },
+    { value: 'Fire', label: 'Fire', priority: 'high' },
+    { value: 'Car accident', label: 'Car accident', priority: 'medium' },
+    { value: 'Unauthorized worker entry', label: 'Unauthorized worker entry', priority: 'medium' },
+    { value: "Worker's vehicle overstaying", label: "Worker's vehicle overstaying", priority: 'low' }
+  ];
+
   // Fetch user's incidents on component mount
   useEffect(() => {
     fetchUserIncidents();
+    // Automatically open the form when the component mounts
+    setShowForm(true);
   }, []);
 
   const fetchUserIncidents = async () => {
@@ -43,6 +72,11 @@ const Incidents = () => {
       });
 
       if (!response.ok) {
+        if (response.status === 404) {
+          // Route not found - set empty incidents for now
+          setIncidents([]);
+          return;
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
@@ -108,10 +142,10 @@ const Incidents = () => {
       // Add the new incident to the list
       setIncidents(prevIncidents => [data.incident, ...prevIncidents]);
       
-      // Reset form
+      // Reset form but keep it open
       setFormData({ type: '', description: '', date: '' });
       setSuccessMessage('Incident reported successfully!');
-      setShowForm(false);
+      // Don't close the form: setShowForm(false); <- REMOVED
       setTimeout(() => setSuccessMessage(''), 3000);
 
     } catch (error) {
@@ -135,9 +169,9 @@ const Incidents = () => {
     return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD format
   };
 
-  // Simple icons as inline SVGs (no external library needed)
+  // Simple icons as inline SVGs
   const AlertCircleIcon = () => (
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="10"></circle>
       <line x1="12" y1="8" x2="12" y2="12"></line>
       <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -145,21 +179,21 @@ const Incidents = () => {
   );
 
   const PlusIcon = () => (
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <line x1="12" y1="5" x2="12" y2="19"></line>
       <line x1="5" y1="12" x2="19" y2="12"></line>
     </svg>
   );
 
   const SearchIcon = () => (
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <circle cx="11" cy="11" r="8"></circle>
       <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
     </svg>
   );
 
   const CalendarIcon = () => (
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
       <line x1="16" y1="2" x2="16" y2="6"></line>
       <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -168,7 +202,7 @@ const Incidents = () => {
   );
 
   const FileTextIcon = () => (
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"></path>
       <polyline points="14,2 14,8 20,8"></polyline>
       <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -178,46 +212,49 @@ const Incidents = () => {
   );
 
   const CheckCircleIcon = () => (
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
       <polyline points="22,4 12,14.01 9,11.01"></polyline>
     </svg>
   );
 
-  const BugIcon = () => (
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <rect width="8" height="14" x="8" y="6" rx="4"></rect>
-      <path d="m19 7-3 2"></path>
-      <path d="m5 7 3 2"></path>
-      <path d="m19 19-3-2"></path>
-      <path d="m5 19 3-2"></path>
-      <path d="M20 12h-4"></path>
-      <path d="M4 12h4"></path>
-      <path d="m9 3 3-3 3 3"></path>
-    </svg>
-  );
-
-  const CarIcon = () => (
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9L18.4 9c-.3-.6-.9-1-1.5-1H7.1c-.6 0-1.2.4-1.5 1L3.5 11.1C2.7 11.3 2 12.1 2 13v3c0 .6.4 1 1 1h2"></path>
-      <circle cx="7" cy="17" r="2"></circle>
-      <path d="M9 17h6"></path>
-      <circle cx="17" cy="17" r="2"></circle>
-    </svg>
-  );
-
   const LoadingIcon = () => (
-    <svg className="animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg className="animate-spin" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="10" strokeDasharray="16" strokeDashoffset="0"></circle>
     </svg>
   );
 
   const getTypeIcon = (type) => {
-    return type === 'Real Parking' ? <CarIcon /> : <BugIcon />;
+    const iconMap = {
+      'Login bug': '🐛',
+      'Report submission error': '📝',
+      'Gate malfunction': '🚪',
+      'Electricity outage': '⚡',
+      'Fire': '🔥',
+      'Car accident': '🚗',
+      'Unauthorized worker entry': '👤',
+      "Worker's vehicle overstaying": '🅿️'
+    };
+    return iconMap[type] || '⚠️';
   };
 
   const getTypeBadgeClass = (type) => {
-    return type === 'Real Parking' ? 'type-badge real-parking' : 'type-badge application';
+    const classMap = {
+      'Login bug': 'type-badge bug',
+      'Report submission error': 'type-badge report-error',
+      'Gate malfunction': 'type-badge gate',
+      'Electricity outage': 'type-badge electricity',
+      'Fire': 'type-badge fire',
+      'Car accident': 'type-badge accident',
+      'Unauthorized worker entry': 'type-badge unauthorized',
+      "Worker's vehicle overstaying": 'type-badge overstay'
+    };
+    return classMap[type] || 'type-badge default';
+  };
+
+  const getPriorityDisplay = (incident) => {
+    // Don't show priority to SOS users - this is for admin use only
+    return null;
   };
 
   return (
@@ -234,14 +271,7 @@ const Incidents = () => {
               <p>Report and track incidents and bugs</p>
             </div>
           </div>
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="report-btn"
-            disabled={loading}
-          >
-            {loading ? <LoadingIcon /> : <PlusIcon />}
-            Report Incident
-          </button>
+          {/* Removed the Report Incident button since form opens automatically */}
         </div>
       </div>
 
@@ -290,8 +320,11 @@ const Incidents = () => {
                     disabled={loading}
                   >
                     <option value="">Select incident type</option>
-                    <option value="Real Parking">Real Parking</option>
-                    <option value="Application">Application</option>
+                    {incidentTypes.map((incident) => (
+                      <option key={incident.value} value={incident.value}>
+                        {incident.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -398,7 +431,7 @@ const Incidents = () => {
                 <div key={incident._id} className="incident-item">
                   <div className="incident-content">
                     <div className="incident-left">
-                      <div className="incident-icon">
+                      <div className="incident-icon" style={{ fontSize: '24px' }}>
                         {getTypeIcon(incident.type)}
                       </div>
                       <div className="incident-details">
@@ -410,10 +443,14 @@ const Incidents = () => {
                             {formatDate(incident.date)}
                           </span>
                           {incident.status && (
-                            <span className={`status-badge ${incident.status.toLowerCase()}`}>
+                            <span 
+                              className={`status-badge ${incident.status.toLowerCase()}`}
+                              style={getStatusBadgeStyle(incident.status)}
+                            >
                               {incident.status}
                             </span>
                           )}
+                          {/* Removed priority display for SOS users */}
                         </div>
                         <p className="incident-description">
                           {incident.description}

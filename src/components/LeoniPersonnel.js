@@ -322,7 +322,7 @@ const isSOS = userRole === 'sos';
       <div className="search-bar">
         <input
           type="text"
-          placeholder="Search by name, matricule, CIN, email, address, state, or postal code..."
+          placeholder="Search by name, matricule"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
