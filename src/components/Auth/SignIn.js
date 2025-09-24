@@ -60,8 +60,12 @@ const SignIn = () => {
           localStorage.setItem('userRole', res.data.user.role); // or derive from res.data.user if you have role field
         }
 
-        // Navigate to dashboard
-        navigate('/dashboard');
+        // Redirect based on user role
+        if (res.data.user && res.data.user.role === 'sos') {
+          navigate('/provide-access');
+        } else {
+          navigate('/dashboard');
+        }
       } else {
         setError('Invalid response from server');
       }

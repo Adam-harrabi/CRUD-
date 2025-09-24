@@ -9,7 +9,6 @@ const ConsultReports = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
-  const [stats, setStats] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [successMessage, setSuccessMessage] = useState('');
@@ -25,7 +24,6 @@ const ConsultReports = () => {
   // Load reports when component mounts or filters change
   useEffect(() => {
     fetchAllReports();
-    fetchStats();
   }, [currentPage, statusFilter, typeFilter, priorityFilter, searchTerm]);
 
   const fetchAllReports = async () => {
@@ -71,28 +69,6 @@ const ConsultReports = () => {
     }
   };
 
-  const fetchStats = async () => {
-    try {
-      const token = getAuthToken();
-      if (!token) return;
-
-      const response = await fetch(`${API_BASE_URL}/incidents/admin/stats`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setStats(data);
-      }
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-    }
-  };
-
   const handleMarkAsResolved = async (reportId) => {
     try {
       setLoading(true);
@@ -125,9 +101,6 @@ const ConsultReports = () => {
 
       setSuccessMessage('Incident marked as resolved successfully!');
       setTimeout(() => setSuccessMessage(''), 3000);
-
-      // Refresh stats
-      fetchStats();
 
     } catch (error) {
       console.error('Error resolving incident:', error);
@@ -191,121 +164,6 @@ const ConsultReports = () => {
         }}>
           Admin - Consult Reports Incidents/Bugs
         </h1>
-        
-        {/* Enhanced Statistics Overview */}
-        {stats.overall && (
-          <div className="stats-container" style={{
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            borderRadius: '16px',
-            padding: '24px',
-            marginBottom: '24px',
-            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)'
-          }}>
-            <h2 style={{ 
-              color: 'white', 
-              fontSize: '20px', 
-              fontWeight: '600', 
-              marginBottom: '20px',
-              textAlign: 'center'
-            }}>
-              Reports Overview
-            </h2>
-            <div className="stats-grid" style={{
-              display: 'flex',
-              justifyContent: 'space-around',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              gap: '16px'
-            }}>
-              <div className="stat-card" style={{
-                background: 'rgba(255, 255, 255, 0.95)',
-                borderRadius: '12px',
-                padding: '20px',
-                textAlign: 'center',
-                minWidth: '140px',
-                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
-                border: '2px solid #e5e7eb',
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease'
-              }}>
-                <div style={{
-                  fontSize: '32px',
-                  fontWeight: '800',
-                  color: '#1f2937',
-                  marginBottom: '8px'
-                }}>
-                  {stats.overall.total}
-                </div>
-                <div style={{
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: '#6b7280',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
-                  Total Reports
-                </div>
-              </div>
-
-              <div className="stat-card" style={{
-                background: 'rgba(255, 255, 255, 0.95)',
-                borderRadius: '12px',
-                padding: '20px',
-                textAlign: 'center',
-                minWidth: '140px',
-                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
-                border: '2px solid #fbbf24',
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease'
-              }}>
-                <div style={{
-                  fontSize: '32px',
-                  fontWeight: '800',
-                  color: '#d97706',
-                  marginBottom: '8px'
-                }}>
-                  {stats.overall.pending}
-                </div>
-                <div style={{
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: '#92400e',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
-                  Pending
-                </div>
-              </div>
-
-              <div className="stat-card" style={{
-                background: 'rgba(255, 255, 255, 0.95)',
-                borderRadius: '12px',
-                padding: '20px',
-                textAlign: 'center',
-                minWidth: '140px',
-                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
-                border: '2px solid #3b82f6',
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease'
-              }}>
-                <div style={{
-                  fontSize: '32px',
-                  fontWeight: '800',
-                  color: '#2563eb',
-                  marginBottom: '8px'
-                }}>
-                  {stats.overall.resolved}
-                </div>
-                <div style={{
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: '#1d4ed8',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
-                  Resolved
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Error Message */}
@@ -607,4 +465,4 @@ const ConsultReports = () => {
   );
 };
 
-export default ConsultReports;
+export default ConsultReports;  

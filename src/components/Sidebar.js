@@ -12,18 +12,23 @@ const Sidebar = () => {
         <h2>{userRole === 'sos' ? 'LEONI SOS' : 'LEONI Admin'}</h2>
       </div>
       <nav>
-        <NavLink to="/suppliers" className="nav-link">
-          <FaUsers /> Suppliers
-        </NavLink>
-        <NavLink to={userRole === 'sos' ? '/sos/personnel' : '/personnel'} className="nav-link">
-          <FaUserTie /> Leoni Personnel
-        </NavLink>
+        {/* Only show Suppliers and Leoni Personnel for Admin users */}
+        {userRole !== 'sos' && (
+          <>
+            <NavLink to="/suppliers" className="nav-link">
+              <FaUsers /> Suppliers
+            </NavLink>
+            <NavLink to="/personnel" className="nav-link">
+              <FaUserTie /> Leoni Personnel
+            </NavLink>
+          </>
+        )}
+        
         {userRole === 'sos' && (
           <>
             <NavLink to="/sos/logs" className="nav-link">
               <FaCalendarAlt /> Entry & Exit Logs
             </NavLink>
-           
             <NavLink to="/provide-access" className="nav-link">
               <FaUserShield /> Provide Access
             </NavLink>
@@ -32,12 +37,13 @@ const Sidebar = () => {
             </NavLink>
           </>
         )}
+        
         {userRole !== 'sos' && (
           <>
             <NavLink to="/sos" className="nav-link">
               <FaUserShield /> SOS Accounts
             </NavLink>
-             <NavLink to="/schedule" className="nav-link">
+            <NavLink to="/schedule" className="nav-link">
               <FaCalendarAlt /> Schedule Presence
             </NavLink>
             <NavLink to="/signup-requests" className="nav-link">
@@ -46,7 +52,6 @@ const Sidebar = () => {
             <NavLink to="/logs" className="nav-link">
               <FaCalendarAlt /> Entry & Exit Logs
             </NavLink>
-
             <NavLink to="/consult-reports" className="nav-link">
               <FaExclamationTriangle /> Consult Reports Incidents/Bugs
             </NavLink>

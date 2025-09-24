@@ -54,26 +54,6 @@ const LogsTable = () => {
     return 'N/A';
   };
 
-  const calculateTotalDuration = (logs) => {
-    let totalMinutes = 0;
-    
-    logs.forEach(logItem => {
-      if (logItem.entryTime && logItem.exitTime) {
-        const durationMs = new Date(logItem.exitTime) - new Date(logItem.entryTime);
-        if (durationMs > 0) {
-          totalMinutes += Math.floor(durationMs / (1000 * 60));
-        }
-      }
-    });
-    
-    if (totalMinutes === 0) return '—';
-    
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
-    
-    return `${hours}h ${minutes}m`;
-  };
-
   const formatTime = (dateTimeString) => {
     if (!dateTimeString) return '—';
     
@@ -235,7 +215,6 @@ const LogsTable = () => {
             totalVisits: 0,
             currentStatus: 'unknown',
             firstEntry: null,
-            lastActivity: null,
             vehiclePlate: getVehiclePlate(logItem),
             monthlyVisitCount: logItem.personType === 'Supplier' && logItem.person._id 
               ? (logItem.monthlyVisitCount !== undefined ? logItem.monthlyVisitCount : (monthlyVisits[logItem.person._id] || 0))
@@ -261,10 +240,8 @@ const LogsTable = () => {
         // Update current status based on latest log
         if (logItem.status === 'entry' || logItem.status === 'present') {
           grouped[key].currentStatus = 'inside';
-          grouped[key].lastActivity = logItem.logDate;
-        } else if (logItem.status === 'exit' && new Date(logItem.logDate) > new Date(grouped[key].lastActivity || 0)) {
+        } else if (logItem.status === 'exit') {
           grouped[key].currentStatus = 'outside';
-          grouped[key].lastActivity = logItem.logDate;
         }
       });
       
@@ -282,33 +259,6 @@ const LogsTable = () => {
         : 0
     }));
   }, [logs, dateFilter, ownerSearch, ownerTypeFilter, viewMode, monthlyVisits]);
-
-  // Enhanced debug function
-  const handleDebug = () => {
-    console.log('=== DEBUG INFORMATION ===');
-    console.log('Current logs count:', logs.length);
-    console.log('Monthly visits map:', monthlyVisits);
-    console.log('Processed logs count:', processedLogs.length);
-    
-    if (logs.length > 0) {
-      const sampleLog = logs[0];
-      console.log('Sample log structure:', {
-        id: sampleLog._id,
-        personType: sampleLog.personType,
-        hasVehicleInfo: !!sampleLog.vehicleInfo,
-        vehicleInfo: sampleLog.vehicleInfo,
-        hasPersonVehicles: !!(sampleLog.person && sampleLog.person.vehicles),
-        personVehicles: sampleLog.person?.vehicles,
-        monthlyVisitCount: sampleLog.monthlyVisitCount,
-        vehiclePlate: getVehiclePlate(sampleLog)
-      });
-    }
-    
-    // Test vehicle plate function on first few logs
-    logs.slice(0, 3).forEach((log, index) => {
-      console.log(`Vehicle plate for log ${index + 1}:`, getVehiclePlate(log));
-    });
-  };
 
   if (loading) {
     return (
@@ -336,32 +286,6 @@ const LogsTable = () => {
               <option value="individual">Individual Logs</option>
             </select>
           </div>
-          <button 
-            onClick={handleDebug}
-            style={{ 
-              padding: '8px 16px', 
-              backgroundColor: '#28a745', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            Debug
-          </button>
-          <button 
-            onClick={() => loadData()} 
-            style={{ 
-              padding: '8px 16px', 
-              backgroundColor: '#007bff', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            Refresh
-          </button>
         </div>
       </div>
 
@@ -403,57 +327,33 @@ const LogsTable = () => {
             <option value="">All</option>
             <option value="Supplier">Supplier</option>
             <option value="LeoniPersonnel">Leoni Personnel</option>
-            <option value="Worker">Worker</option>
           </select>
         </div>
-      </div>
-
-      <div className="stats-summary" style={{ 
-        backgroundColor: '#e7f3ff', 
-        padding: '10px', 
-        marginBottom: '20px', 
-        borderRadius: '4px',
-        display: 'flex',
-        gap: '20px',
-        flexWrap: 'wrap'
-      }}>
-        <span><strong>Total Records:</strong> {processedLogs.length}</span>
-        {viewMode === 'grouped' ? (
-          <>
-            <span><strong>Currently Inside:</strong> {processedLogs.filter(item => item.currentStatus === 'inside').length}</span>
-            <span><strong>Total People:</strong> {processedLogs.length}</span>
-          </>
-        ) : (
-          <>
-            <span><strong>Currently Inside:</strong> {processedLogs.filter(logItem => logItem.status === 'entry' || logItem.status === 'present').length}</span>
-            <span><strong>Completed Visits:</strong> {processedLogs.filter(logItem => logItem.status === 'exit').length}</span>
-          </>
-        )}
       </div>
 
       <div className="table-responsive">
         <table className="logs-table">
         <thead>
           <tr>
-            <th>Date</th>
-            <th>Plate</th>
-            <th>Name</th>
-            <th>Owner Type</th>
-            <th>CIN / Matricule</th>
             {viewMode === 'grouped' ? (
               <>
-                <th>Monthly Visits</th>
-                <th>Total Visits</th>
+                <th>Name</th>
+                <th>Owner Type</th>
+                <th>CIN / Matricule</th>
+                <th>Vehicle Plate</th>
+                <th>Total Visits (Suppliers)</th>
                 <th>Current Status</th>
-                <th>Last Activity</th>
-                <th>Total Duration</th>
               </>
             ) : (
               <>
-                <th>Monthly Visits</th>
+                <th>Name</th>
+                <th>Owner Type</th>
+                <th>CIN / Matricule</th>
+                <th>Vehicle Plate</th>
                 <th>Entry Time</th>
                 <th>Exit Time</th>
                 <th>Duration</th>
+                <th>Monthly Visits</th>
                 <th>Status</th>
               </>
             )}
@@ -471,10 +371,6 @@ const LogsTable = () => {
 
                 return (
                   <tr key={`grouped-${item.person._id}-${idx}`}>
-                    <td>{formatDate(item.latestLog.logDate)}</td>
-                    <td style={{ fontWeight: 'bold', color: item.vehiclePlate === 'N/A' ? '#999' : '#333' }}>
-                      {item.vehiclePlate}
-                    </td>
                     <td>{person.name || 'Unknown'}</td>
                     <td>
                       <span className={
@@ -485,34 +381,30 @@ const LogsTable = () => {
                       </span>
                     </td>
                     <td>{cinMatricule}</td>
+                    <td style={{ fontWeight: 'bold', color: item.vehiclePlate === 'N/A' ? '#999' : '#333' }}>
+                      {item.vehiclePlate}
+                    </td>
                     <td>
                       {item.personType === 'Supplier' ? (
                         <strong style={{ 
                           color: '#007bff',
                           fontSize: '16px'
                         }}>
-                          {item.monthlyVisitCount}
+                          {item.totalVisits}
                         </strong>
                       ) : '—'}
                     </td>
-                    <td><strong>{item.totalVisits}</strong></td>
                     <td className={item.currentStatus === 'inside' ? 'status-inside' : 'status-outside'}>
                       {item.currentStatus === 'inside' ? 'Inside' : 'Outside'}
                     </td>
-                    <td>
-                      {formatDate(item.lastActivity)}<br/>
-                      <small>{formatTime(item.lastActivity)}</small>
-                    </td>
-                    <td>{calculateTotalDuration(item.logs)}</td>
                   </tr>
                 );
               } else {
-                // Individual view (original)
+                // Individual view (custom columns)
                 const person = item.person || {};
                 const status = item.status === 'exit' ? 'Exited' : 
                              item.status === 'entry' || item.status === 'present' ? 'Inside' : 
                              item.status;
-                
                 const duration = item.entryTime && item.exitTime ? 
                   (() => {
                     const durationMs = new Date(item.exitTime) - new Date(item.entryTime);
@@ -521,19 +413,13 @@ const LogsTable = () => {
                     const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
                     return `${hours}h ${minutes}m`;
                   })() : '—';
-                
                 const vehiclePlate = getVehiclePlate(item);
-                
                 const cinMatricule = item.personType === 'LeoniPersonnel' 
                   ? (person.matricule || person.cin || '—')
                   : (person.cin || person.id_sup || '—');
 
                 return (
                   <tr key={`individual-${item._id}-${idx}`}>
-                    <td>{formatDate(item.logDate)}</td>
-                    <td style={{ fontWeight: 'bold', color: vehiclePlate === 'N/A' ? '#999' : '#333' }}>
-                      {vehiclePlate}
-                    </td>
                     <td>{person.name || 'Unknown'}</td>
                     <td>
                       <span className={
@@ -544,6 +430,12 @@ const LogsTable = () => {
                       </span>
                     </td>
                     <td>{cinMatricule}</td>
+                    <td style={{ fontWeight: 'bold', color: vehiclePlate === 'N/A' ? '#999' : '#333' }}>
+                      {vehiclePlate}
+                    </td>
+                    <td>{formatTime(item.entryTime)}</td>
+                    <td>{formatTime(item.exitTime)}</td>
+                    <td>{duration}</td>
                     <td>
                       {item.personType === 'Supplier' ? (
                         <strong style={{ 
@@ -554,9 +446,6 @@ const LogsTable = () => {
                         </strong>
                       ) : '—'}
                     </td>
-                    <td>{formatTime(item.entryTime)}</td>
-                    <td>{formatTime(item.exitTime)}</td>
-                    <td>{duration}</td>
                     <td className={status === 'Exited' ? 'status-exited' : 'status-inside'}>
                       {status}
                     </td>
@@ -566,7 +455,7 @@ const LogsTable = () => {
             })
           ) : (
             <tr>
-              <td colSpan="10" style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+              <td colSpan={viewMode === 'grouped' ? '7' : '10'} style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
                 {loading ? 'Loading logs...' : 'No logs found matching your criteria.'}
               </td>
             </tr>

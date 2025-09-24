@@ -228,7 +228,21 @@ function App() {
             </PrivateRoute>
           }
         />
-        <Route path="/" element={<Navigate to="/signin" />} />
+        <Route
+          path="/"
+          element={
+            (() => {
+              const userRole = localStorage.getItem('userRole');
+              if (userRole === 'sos') {
+                return <Navigate to="/provide-access" />;
+              } else if (userRole === 'admin') {
+                return <Navigate to="/dashboard" />;
+              } else {
+                return <Navigate to="/signin" />;
+              }
+            })()
+          }
+        />
       </Routes>
     </Router>
   );
