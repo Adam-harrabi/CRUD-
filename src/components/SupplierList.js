@@ -326,7 +326,7 @@ const SupplierList = () => {
       <div className="search-bar">
         <input
           type="text"
-          placeholder="Search by name, CIN, supplier ID, company info, email, or VST number..."
+          placeholder="Search by name, CIN"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
@@ -343,17 +343,15 @@ const SupplierList = () => {
               <th>EMAIL</th>
               <th>PHONE</th>
               <th>CIN</th>
-              <th>SUPPLIER ID</th>
               <th>COMPANY INFO</th>
-              <th>VST NUMBER</th>
-              <th>VEHICLE INFO</th>
+              <th>VEHICLE PLATE	</th>
               <th>ACTIONS</th>
             </tr>
           </thead>
           <tbody>
             {!loading && filteredSuppliers.length === 0 ? (
               <tr>
-                <td colSpan="9" style={{ textAlign: "center" }}>
+                <td colSpan="7" style={{ textAlign: "center" }}>
                   {error ? "Unable to load data" : "No suppliers found"}
                 </td>
               </tr>
@@ -364,9 +362,7 @@ const SupplierList = () => {
                   <td>{s.email || "N/A"}</td>
                   <td>{s.phonenumber || "N/A"}</td>
                   <td>{s.cin || "N/A"}</td>
-                  <td>{s.id_sup || "N/A"}</td>
                   <td>{s.companyInfo || "N/A"}</td>
-                  <td>{s.num_vst || "N/A"}</td>
                   <td>
                     {s.vehicles && s.vehicles.length > 0 ? (
                       <div style={{fontSize: '12px'}}>
@@ -379,8 +375,21 @@ const SupplierList = () => {
                     )}
                   </td>
                   <td>
-                    <button onClick={() => handleEdit(s)}>Edit</button>
-                    <button onClick={() => handleDeleteClick(s)}>Delete</button>
+                      <button 
+                      className="edit-button" 
+                      onClick={() => handleEdit(s)}
+                      disabled={loading}
+                      style={{ marginRight: '5px' }}
+                    >
+                      Edit
+                    </button>
+                     <button 
+                      className="delete-button" 
+                      onClick={() => handleDeleteClick(s)}
+                      disabled={loading}
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))

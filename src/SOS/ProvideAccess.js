@@ -273,10 +273,14 @@ const handleSubmit = async (e) => {
       
       if (formMode === 'checkIn') {
         const timeString = formData.entryTime || new Date().toTimeString().slice(0, 5);
-        
-        // Create ISO datetime string carefully
-        const entryDateTime = new Date(`${currentDate}T${timeString}:00.000Z`);
-        
+        // Fix: Use local time instead of UTC
+        const [hours, minutes] = timeString.split(':');
+        const entryDateTime = new Date(currentDate);
+        entryDateTime.setHours(parseInt(hours, 10));
+        entryDateTime.setMinutes(parseInt(minutes, 10));
+        entryDateTime.setSeconds(0);
+        entryDateTime.setMilliseconds(0);
+
         const checkInData = {
           personId: selectedPerson.id,
           personType: selectedPerson.personType,
@@ -285,18 +289,22 @@ const handleSubmit = async (e) => {
           notes: `Check-in via access control system`,
           parkingLocation: ''
         };
-        
+
         console.log('Check-in data:', checkInData);
         await logAPI.checkIn(checkInData);
-        
+
         alert(`${selectedPerson.name} has checked in successfully at ${timeString}.`);
-        
+
       } else if (formMode === 'checkOut') {
         const timeString = formData.exitTime || new Date().toTimeString().slice(0, 5);
-        
-        // Create ISO datetime string carefully
-        const exitDateTime = new Date(`${currentDate}T${timeString}:00.000Z`);
-        
+        // Fix: Use local time instead of UTC
+        const [hours, minutes] = timeString.split(':');
+        const exitDateTime = new Date(currentDate);
+        exitDateTime.setHours(parseInt(hours, 10));
+        exitDateTime.setMinutes(parseInt(minutes, 10));
+        exitDateTime.setSeconds(0);
+        exitDateTime.setMilliseconds(0);
+
         // Additional validation: ensure exit time is not before entry time
         if (selectedPerson.entryTime) {
           const entryTime = new Date(selectedPerson.entryTime);
@@ -305,17 +313,17 @@ const handleSubmit = async (e) => {
             return;
           }
         }
-        
+
         const checkOutData = {
           personId: selectedPerson.id,
           personType: selectedPerson.personType,
           exitTime: exitDateTime.toISOString(),
           notes: `Check-out via access control system`
         };
-        
+
         console.log('Check-out data:', checkOutData);
         await logAPI.checkOut(checkOutData);
-        
+
         alert(`${selectedPerson.name} has checked out successfully at ${timeString}.`);
       }
       
@@ -495,19 +503,7 @@ const handleSubmit = async (e) => {
         <div className="modal">
           <div className="modal-content">
             <h2>{formMode === 'checkIn' ? 'Check In Form' : 'Check Out Form'}</h2>
-            {selectedPerson && (
-              <div style={{ marginBottom: '20px', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
-                <strong>Person:</strong> {selectedPerson.name}<br/>
-                <strong>Type:</strong> {selectedPerson.type}<br/>
-                <strong>CIN:</strong> {selectedPerson.cinMatricule}<br/>
-                {selectedPerson.matricule && selectedPerson.matricule !== 'N/A' && (
-                  <>
-                    <strong>Matricule:</strong> {selectedPerson.matricule}<br/>
-                  </>
-                )}
-                <strong>Vehicle:</strong> {selectedPerson.plate}
-              </div>
-            )}
+            {/* Worker info removed as requested */}
             
             <form onSubmit={handleSubmit}>
               <div className="form-group">
