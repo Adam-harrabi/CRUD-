@@ -20,7 +20,6 @@ const ProvideAccess = () => {
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [stats, setStats] = useState(null);
 
   // Helper function to determine person status from logs
   const getPersonStatus = (personId, personType, activeLogs, allLogs) => {
@@ -195,15 +194,6 @@ const ProvideAccess = () => {
       console.log('Final access list:', finalAccessList.length, 'items');
       setAccessList(finalAccessList);
       
-      // Load statistics
-      try {
-        const statsData = await logAPI.getStats();
-        setStats(statsData.data || null);
-      } catch (statsError) {
-        console.warn('Failed to fetch stats:', statsError.message);
-        setStats(null);
-      }
-      
     } catch (error) {
       console.error('Error loading data:', error);
       setError(error.message || 'Unknown error occurred');
@@ -257,7 +247,7 @@ const ProvideAccess = () => {
     loadData();
   }, [loadData]);
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!selectedPerson) {
@@ -352,6 +342,7 @@ const handleSubmit = async (e) => {
       setSelectedPerson(null);
     }
   };
+  
   const handleCheckIn = (idx) => {
     const person = filteredLogs[idx];
     if (!person) {
@@ -434,57 +425,7 @@ const handleSubmit = async (e) => {
     <div className="supplier-container">
       <div className="header">
         <h1>Provide Access</h1>
-        <button 
-          onClick={loadData} 
-          style={{ 
-            marginLeft: '20px', 
-            padding: '8px 16px', 
-            backgroundColor: '#007bff', 
-            color: 'white', 
-            border: 'none', 
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
-          Reload Data
-        </button>
       </div>
-
-      {/* Statistics Panel */}
-      {stats && (
-        <div style={{ 
-          backgroundColor: '#e7f3ff', 
-          padding: '15px', 
-          marginBottom: '20px', 
-          borderRadius: '4px',
-          border: '1px solid #b3d9ff'
-        }}>
-          <h3>Today's Statistics</h3>
-          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-            <div>
-              <strong>Currently Inside:</strong> {stats.today?.currentlyInside || 0}
-            </div>
-            <div>
-              <strong>Total Entries:</strong> {stats.today?.totalEntries || 0}
-            </div>
-            <div>
-              <strong>Total Exits:</strong> {stats.today?.totalExits || 0}
-            </div>
-            <div>
-              <strong>Suppliers:</strong> {stats.today?.supplierEntries || 0}
-            </div>
-            <div>
-              <strong>Workers:</strong> {stats.today?.personnelEntries || 0}
-            </div>
-            <div>
-              <strong>Leoni Personnel:</strong> {stats.today?.leoniPersonnelEntries || 0}
-            </div>
-            <div>
-              <strong>Vehicles Parked:</strong> {stats.vehicles?.currentlyParked || 0}
-            </div>
-          </div>
-        </div>
-      )}
 
       {error && (
         <div className="error-message" style={{ 
@@ -503,7 +444,6 @@ const handleSubmit = async (e) => {
         <div className="modal">
           <div className="modal-content">
             <h2>{formMode === 'checkIn' ? 'Check In Form' : 'Check Out Form'}</h2>
-            {/* Worker info removed as requested */}
             
             <form onSubmit={handleSubmit}>
               <div className="form-group">

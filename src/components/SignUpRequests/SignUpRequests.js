@@ -154,7 +154,7 @@ const SignUpRequests = () => {
   return (
     <div className="container">
       <div className="header">
-        <h1>Sign-Up Requests</h1>
+        <h1>Sign-Up Requests for SoS Accounts</h1>
        
       </div>
 
