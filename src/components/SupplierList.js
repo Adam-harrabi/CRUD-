@@ -303,8 +303,7 @@ const SupplierList = () => {
       (s.cin || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       (s.id_sup || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       (s.companyInfo || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (s.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (s.num_vst || "").toLowerCase().includes(searchTerm.toLowerCase())
+      (s.email || "").toLowerCase().includes(searchTerm.toLowerCase()) 
   );
 
   return (

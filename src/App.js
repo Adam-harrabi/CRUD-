@@ -8,6 +8,7 @@ import SchedulePresence from './components/SchedulePresence';
 import SignUpRequests from './components/SignUpRequests/SignUpRequests';
 import SignIn from './components/Auth/SignIn';
 import SignUp from './components/Auth/SignUp';
+import AccessDenied from './components/AccesDenied'; // Add this import
 import './App.css';
 import SOSSupplierList from './SOS/SOSSupplierList';
 import SOSLeoniPersonnel from './SOS/SOSLeoniPersonnel';
@@ -70,14 +71,14 @@ function App() {
   const token = localStorage.getItem('token'); // Check for token instead
   const isAuth = !!token; // Convert to boolean - true if token exists
   
-  const isAllowed = !allowedRole || userRole === allowedRole;
-
+  // If not authenticated, redirect to signin
   if (!isAuth) {
     return <Navigate to="/signin" />;
   }
 
-  if (!isAllowed) {
-    return <Navigate to={userRole === 'sos' ? '/sos/suppliers' : '/suppliers'} />;
+  // If allowedRole is specified and user doesn't have the required role
+  if (allowedRole && userRole !== allowedRole) {
+    return <AccessDenied />;
   }
 
   return children;
@@ -90,10 +91,11 @@ function App() {
       <Routes>
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/access-denied" element={<AccessDenied />} />
         <Route
           path="/dashboard"
           element={
-            <PrivateRoute>
+            <PrivateRoute allowedRole="admin">
               <div className="app">
                 <Sidebar />
                 <Dashboard />
@@ -101,7 +103,7 @@ function App() {
             </PrivateRoute>
           }
         />
-        {/* All other routes: sidebar outside, no .app/.content wrapper */}
+        {/* Admin-only routes */}
         <Route
           path="/suppliers"
           element={
@@ -115,24 +117,6 @@ function App() {
           path="/personnel"
           element={
             <PrivateRoute allowedRole="admin">
-              <Sidebar />
-              <LeoniPersonnel personnel={personnel} setPersonnel={setPersonnel} />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/sos/suppliers"
-          element={
-            <PrivateRoute allowedRole="sos">
-              <Sidebar />
-              <SOSSupplierList suppliers={suppliers} setSuppliers={setSuppliers} />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/sos/personnel"
-          element={
-            <PrivateRoute allowedRole="sos">
               <Sidebar />
               <LeoniPersonnel personnel={personnel} setPersonnel={setPersonnel} />
             </PrivateRoute>
@@ -166,15 +150,6 @@ function App() {
           }
         />
         <Route
-          path="/sos/logs"
-          element={
-            <PrivateRoute allowedRole="sos">
-              <Sidebar />
-              <LogsTable />
-            </PrivateRoute>
-          }
-        />
-        <Route
           path="/logs"
           element={
             <PrivateRoute allowedRole="admin">
@@ -184,20 +159,40 @@ function App() {
           }
         />
         <Route
-          path="/profile"
+          path="/consult-reports"
           element={
-            <PrivateRoute>
+            <PrivateRoute allowedRole="admin">
               <Sidebar />
-              <Profile />
+              <ConsultReports />
+            </PrivateRoute>
+          }
+        />
+        
+        {/* SOS-only routes */}
+        <Route
+          path="/sos/suppliers"
+          element={
+            <PrivateRoute allowedRole="sos">
+              <Sidebar />
+              <SOSSupplierList suppliers={suppliers} setSuppliers={setSuppliers} />
             </PrivateRoute>
           }
         />
         <Route
-          path="/password"
+          path="/sos/personnel"
           element={
-            <PrivateRoute>
+            <PrivateRoute allowedRole="sos">
               <Sidebar />
-              <Password />
+              <LeoniPersonnel personnel={personnel} setPersonnel={setPersonnel} />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/sos/logs"
+          element={
+            <PrivateRoute allowedRole="sos">
+              <Sidebar />
+              <LogsTable />
             </PrivateRoute>
           }
         />
@@ -219,15 +214,28 @@ function App() {
             </PrivateRoute>
           }
         />
+        
+        {/* Routes available to both roles */}
         <Route
-          path="/consult-reports"
+          path="/profile"
           element={
-            <PrivateRoute allowedRole="admin">
+            <PrivateRoute>
               <Sidebar />
-              <ConsultReports />
+              <Profile />
             </PrivateRoute>
           }
         />
+        <Route
+          path="/password"
+          element={
+            <PrivateRoute>
+              <Sidebar />
+              <Password />
+            </PrivateRoute>
+          }
+        />
+        
+        {/* Default redirect based on user role */}
         <Route
           path="/"
           element={

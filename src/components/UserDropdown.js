@@ -13,7 +13,7 @@ const UserDropdown = ({ onRefresh }) => {
       setError(null);
       
       const token = localStorage.getItem("token");
-      console.log("Token found:", !!token); // Debug log
+      console.log("Token found:", !!token);
       
       if (!token) {
         console.log("No token - user not logged in");
@@ -32,7 +32,6 @@ const UserDropdown = ({ onRefresh }) => {
 
       if (!response.ok) {
         if (response.status === 401) {
-          // Token is invalid/expired
           console.log("Token invalid - clearing localStorage");
           localStorage.clear();
           setUserData(null);
@@ -43,7 +42,7 @@ const UserDropdown = ({ onRefresh }) => {
       }
 
       const data = await response.json();
-      console.log("API Response:", data); // Debug log to see what you're getting
+      console.log("API Response:", data);
       setUserData(data.user);
       setLoading(false);
     } catch (error) {
@@ -60,20 +59,31 @@ const UserDropdown = ({ onRefresh }) => {
     }
   }, [onRefresh]);
 
-  // Fetch user data from backend
+  // Fetch user data on mount and listen for token changes
   useEffect(() => {
     fetchUserData();
     
-    // Listen for storage changes (like when user logs in from another tab)
-    const handleStorageChange = () => {
-      console.log("Storage changed - refetching user data");
+    // Listen for storage changes (login from another tab)
+    const handleStorageChange = (e) => {
+      // Only react to token changes
+      if (e.key === 'token' || e.key === null) {
+        console.log("Storage changed - refetching user data");
+        fetchUserData();
+      }
+    };
+    
+    // Listen for custom login events
+    const handleLoginEvent = () => {
+      console.log("Login event received - refetching user data");
       fetchUserData();
     };
     
     window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('userLoggedIn', handleLoginEvent);
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('userLoggedIn', handleLoginEvent);
     };
   }, []);
 
@@ -97,22 +107,25 @@ const UserDropdown = ({ onRefresh }) => {
   const toggleDropdown = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log("Toggle clicked, current state:", isOpen); // Debug log
+    console.log("Toggle clicked, current state:", isOpen);
     setIsOpen(!isOpen);
   };
 
   const handleSignOut = (e) => {
     e.stopPropagation();
     localStorage.clear();
+    // Dispatch custom event for other components to react
+    window.dispatchEvent(new Event('userLoggedOut'));
     window.location.href = '/signin';
   };
 
   const handleProfileClick = (e) => {
     e.stopPropagation();
+    setIsOpen(false); // Close dropdown when navigating
     window.location.href = '/profile';
   };
 
-  // Show loading state
+  // Show loading state only briefly
   if (loading) {
     return (
       <div style={{
@@ -142,6 +155,7 @@ const UserDropdown = ({ onRefresh }) => {
 
   // Don't show anything if user is not logged in
   if (!loading && !userData && !error) {
+    console.log("Not showing dropdown - no user data and no error");
     return null;
   }
 
@@ -169,10 +183,47 @@ const UserDropdown = ({ onRefresh }) => {
           cursor: 'pointer'
         }}
         onClick={toggleDropdown}
-        title={`Error: ${error}`}
+        title={`Error: ${error}. Click to retry.`}
         >
           !
         </div>
+        
+        {isOpen && (
+          <div style={{
+            position: 'absolute',
+            bottom: '70px',
+            left: '0',
+            background: '#fff',
+            border: '1px solid #ddd',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            width: '220px',
+            zIndex: 1001,
+            padding: '12px'
+          }}>
+            <div style={{ color: '#dc3545', marginBottom: '8px' }}>
+              Error: {error}
+            </div>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsOpen(false);
+                fetchUserData();
+              }}
+              style={{
+                backgroundColor: '#007bff',
+                color: 'white',
+                border: 'none',
+                padding: '8px 12px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                width: '100%'
+              }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
       </div>
     );
   }
@@ -195,13 +246,13 @@ const UserDropdown = ({ onRefresh }) => {
           borderRadius: '50%',
           overflow: 'hidden',
           cursor: 'pointer',
-          backgroundColor: '#e0e0e0',
+          backgroundColor: '#bdbdbdff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           fontSize: '20px',
           fontWeight: 'bold',
-          color: '#666',
+          color: '#fff',
           border: '3px solid #fff',
           boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
           userSelect: 'none',
@@ -209,15 +260,16 @@ const UserDropdown = ({ onRefresh }) => {
           transform: isOpen ? 'scale(0.95)' : 'scale(1)'
         }}
         onMouseEnter={(e) => {
-          if (!isOpen) e.target.style.backgroundColor = '#d0d0d0';
+          if (!isOpen) e.target.style.backgroundColor = '#3557d1';
         }}
         onMouseLeave={(e) => {
-          if (!isOpen) e.target.style.backgroundColor = '#e0e0e0';
+          if (!isOpen) e.target.style.backgroundColor = '#bdbdbdff';
         }}
+        title={userData ? `${userData.firstName} ${userData.lastName}` : 'User Menu'}
       >
         {userData 
           ? `${userData.firstName?.[0] || ''}${userData.lastName?.[0] || ''}`.toUpperCase() 
-          : 'JD'}
+          : 'U'}
       </div>
       
       {isOpen && (
