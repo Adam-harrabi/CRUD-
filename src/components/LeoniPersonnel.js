@@ -11,6 +11,7 @@ const LeoniPersonnel = () => {
     name: '',
     cin: '',
     email: '',
+    phone: '',
     address: '',
     state: '',
     postal_code: '',
@@ -28,11 +29,13 @@ const LeoniPersonnel = () => {
   const [personToDelete, setPersonToDelete] = useState(null);
   const [nameError, setNameError] = useState(false);
   const [cinError, setCinError] = useState(false);
+  const [phoneError, setPhoneError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-const userRole = localStorage.getItem("userRole") || 'unknown';
-const isAdmin = userRole === 'admin';
-const isSOS = userRole === 'sos';
+  const userRole = localStorage.getItem("userRole") || 'unknown';
+  const isAdmin = userRole === 'admin';
+  const isSOS = userRole === 'sos';
+
   // =========================
   // Load personnel from backend - ONLY ONCE on mount
   // =========================
@@ -92,12 +95,12 @@ const isSOS = userRole === 'sos';
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (nameError || cinError) {
+    if (nameError || cinError || phoneError) {
       alert('Please fix the validation errors before submitting.');
       return;
     }
 
-    if (!formData.matricule || !formData.name || !formData.cin || !formData.email || !formData.address || !formData.state || !formData.postal_code) {
+    if (!formData.matricule || !formData.name || !formData.cin || !formData.email || !formData.phone || !formData.address || !formData.state || !formData.postal_code) {
       alert('Please fill in all required fields.');
       return;
     }
@@ -107,6 +110,7 @@ const isSOS = userRole === 'sos';
       name: formData.name.trim(),
       cin: formData.cin.trim(),
       email: formData.email.trim(),
+      phone: formData.phone.trim(),
       address: formData.address.trim(),
       state: formData.state.trim(),
       postal_code: formData.postal_code.trim()
@@ -171,6 +175,7 @@ const isSOS = userRole === 'sos';
       name: person.name || "",
       cin: person.cin || "",
       email: person.email || "",
+      phone: person.phone || "",
       address: person.address || "",
       state: person.state || "",
       postal_code: person.postal_code || "",
@@ -229,6 +234,7 @@ const isSOS = userRole === 'sos';
       name: '',
       cin: '',
       email: '',
+      phone: '',
       address: '',
       state: '',
       postal_code: '',
@@ -243,6 +249,7 @@ const isSOS = userRole === 'sos';
     setEditId(null);
     setNameError(false);
     setCinError(false);
+    setPhoneError(false);
   };
 
   const validateName = (name) => {
@@ -253,6 +260,10 @@ const isSOS = userRole === 'sos';
     return cin === '' || /^[0-9]{8}$/.test(cin);
   };
 
+  const validatePhone = (phone) => {
+    return phone === '' || /^(\+216)?[0-9]{8}$/.test(phone);
+  };
+
   // =========================
   // Filter search
   // =========================
@@ -261,6 +272,7 @@ const isSOS = userRole === 'sos';
     (person.matricule || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
     (person.cin || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
     (person.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (person.phone || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
     (person.address || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
     (person.state || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
     (person.postal_code || "").toLowerCase().includes(searchTerm.toLowerCase())
@@ -322,7 +334,7 @@ const isSOS = userRole === 'sos';
       <div className="search-bar">
         <input
           type="text"
-          placeholder="Search by name, matricule"
+          placeholder="Search by name, matricule, phone..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
@@ -349,6 +361,7 @@ const isSOS = userRole === 'sos';
               <th>MATRICULE</th>
               <th>CIN</th>
               <th>EMAIL</th>
+              <th>PHONE</th>
               <th>ADDRESS</th>
               <th>STATE</th>
               <th>POSTAL CODE</th>
@@ -359,7 +372,7 @@ const isSOS = userRole === 'sos';
           <tbody>
             {!loading && filteredPersonnel.length === 0 ? (
               <tr>
-                <td colSpan="9" style={{ textAlign: 'center', padding: '20px', color: '#6c757d' }}>
+                <td colSpan="10" style={{ textAlign: 'center', padding: '20px', color: '#6c757d' }}>
                   {error ? 'Unable to load data' : 'No personnel found'}
                 </td>
               </tr>
@@ -370,6 +383,7 @@ const isSOS = userRole === 'sos';
                   <td>{person.matricule}</td>
                   <td>{person.cin}</td>
                   <td>{person.email}</td>
+                  <td>{person.phone}</td>
                   <td>{person.address}</td>
                   <td>{person.state}</td>
                   <td>{person.postal_code}</td>
@@ -465,6 +479,20 @@ const isSOS = userRole === 'sos';
                   required 
                 />
                 
+                <input
+                  type="text"
+                  placeholder="Phone (8 digits or +216XXXXXXXX) *"
+                  value={formData.phone}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setFormData({ ...formData, phone: value });
+                    setPhoneError(!validatePhone(value));
+                  }}
+                  required
+                  style={{ marginBottom: '5px' }}
+                />
+                {phoneError && <p style={{ color: 'red', fontSize: '12px', margin: '0 0 10px 0' }}>Phone must be 8 digits or in format +216XXXXXXXX</p>}
+                
                 <input 
                   type="text" 
                   placeholder="Address *" 
@@ -532,7 +560,7 @@ const isSOS = userRole === 'sos';
               </div>
 
               <div className="modal-buttons">
-                <button type="submit" disabled={loading || nameError || cinError}>
+                <button type="submit" disabled={loading || nameError || cinError || phoneError}>
                   {loading ? 'Processing...' : (isEditing ? 'Update' : 'Add')}
                 </button>
                 <button type="button" onClick={resetForm} disabled={loading}>

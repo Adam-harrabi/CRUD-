@@ -2,7 +2,6 @@
 .dashboard-layout {
   width: 100%;
   display: flex;
-  min-height: 1000vh;
   background-color: #f8fafc;
   
 }

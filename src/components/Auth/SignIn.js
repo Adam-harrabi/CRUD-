@@ -11,7 +11,7 @@ const SignIn = () => {
     password: ''
   });
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,31 +34,31 @@ const SignIn = () => {
     }
 
     try {
-      console.log('Attempting login with:', { email: formData.email }); // Debug log
+      console.log('Attempting login with:', { email: formData.email });
       
-      // Make POST request to backend login with explicit headers
       const res = await axios.post('http://localhost:5000/api/auth/login', {
-        email: formData.email.trim(), // Remove any whitespace
+        email: formData.email.trim(),
         password: formData.password
       }, {
         headers: {
           'Content-Type': 'application/json'
         },
-        timeout: 10000 // 10 second timeout
+        timeout: 10000
       });
 
-      console.log('Login response:', res.data); // Debug log
+      console.log('Login response:', res.data);
 
-      // Check if we got the expected response structure
       if (res.data && res.data.token) {
         // Save token and user info in localStorage
         localStorage.setItem('token', res.data.token);
         
-        // Save user info if available
         if (res.data.user) {
           localStorage.setItem('user', JSON.stringify(res.data.user));
-          localStorage.setItem('userRole', res.data.user.role); // or derive from res.data.user if you have role field
+          localStorage.setItem('userRole', res.data.user.role);
         }
+
+        // 🔥 ADD THIS LINE - Notify UserDropdown that user logged in
+        window.dispatchEvent(new Event('userLoggedIn'));
 
         // Redirect based on user role
         if (res.data.user && res.data.user.role === 'sos') {
@@ -70,19 +70,16 @@ const SignIn = () => {
         setError('Invalid response from server');
       }
     } catch (err) {
-      console.error('Login error:', err); // Better error logging
+      console.error('Login error:', err);
       
       if (err.code === 'ECONNABORTED') {
         setError('Connection timeout. Please try again.');
       } else if (err.response) {
-        // Server responded with error status
         const message = err.response.data?.msg || err.response.data?.message || 'Login failed';
         setError(message);
       } else if (err.request) {
-        // Request was made but no response received
         setError('Unable to connect to server. Please check your connection.');
       } else {
-        // Something else happened
         setError('An unexpected error occurred. Please try again.');
       }
     } finally {
@@ -95,7 +92,6 @@ const SignIn = () => {
       ...prev,
       [field]: value
     }));
-    // Clear error when user starts typing
     if (error) setError('');
   };
 
